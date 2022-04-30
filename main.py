@@ -15,11 +15,13 @@ import pathlib
 # API information
 api_service_name = "youtube"
 api_version = "v3"
-DEVELOPER_KEY = 'AIzaSyBYwVqhlTzox2YdwHMk9ZKRQJkNkj2F2N0'  # Generada en Google Cloud Platform
+#DEVELOPER_KEY = 'AIzaSyBYwVqhlTzox2YdwHMk9ZKRQJkNkj2F2N0'  # Generada en Google Cloud Platform
+DEVELOPER_KEY = 'AIzaSyBrilxyR-EhvbWWOtZuj2JL0Hj7CrFWoRM'  # Generada en Google Cloud Platform
 # API client
 youtube = youtube.build(
     api_service_name, api_version, developerKey=DEVELOPER_KEY)  # Construir objeto tipo googleapiclient.discovery
-row = 0
+
+word_list = []
 
 def get_comments(video_id):
     request = youtube.commentThreads().list(
@@ -28,35 +30,26 @@ def get_comments(video_id):
     )
     try:  # Hay vídeos que tienen bloqueados los comentarios
         search_response = request.execute()
-        print(search_response)
-        data_file = open('.\csv\jsonoutput.csv', 'w', newline='')
-        csv_writer = csv.writer(data_file)
+        #print(search_response)
+        with open("./json/comments/" + video_id + "_Videos.json", "w") as outfile:
+            json.dump(search_response, outfile)
+
         for search_result in search_response.get("items", []):
-            with open("./json/comments/" + search_result["id"] + "_Videos.json", "w") as outfile:
-                json.dump(search_response, outfile)
-            for data in outfile:
-                if row == 0:
-                    header = data.keys()
-                    csv_writer.writerow(header)
-                    row += 1
-                csv_writer.writerow(data.values())
+            word_list.append(search_result["snippet"]["topLevelComment"]["snippet"]["textDisplay"])
     except Exception:
-        print("Oops! ")
+        print("Oops! "+ video_id)
 
 
 def createWordsCloud():
-    # Start with one review:
-    text = df.description[0]
-
-    # Create and generate a word cloud image:
-    wordcloud = WordCloud().generate(text)
-
-    # Display the generated image:
-    plt.imshow(wordcloud, interpolation='bilinear')
+    unique_string=(" ").join(word_list)
+    wordcloud = WordCloud(width = 1000, height = 500).generate(unique_string)
+    plt.figure(figsize=(15,8))
+    plt.imshow(wordcloud)
     plt.axis("off")
     plt.show()
 
 def createjson_Videos():
+    ventana.config(cursor="watch")
     request = youtube.search().list(
         part="id,snippet",
         regionCode=drop_down_region_code.get(),
@@ -68,12 +61,14 @@ def createjson_Videos():
     )  # Método de búsqueda de vídeos
     # Request execution
     search_response = request.execute()
+    word_list.clear()
     for search_result in search_response.get("items", []):
         get_comments(search_result["id"]["videoId"])
     print(search_response)
     with open("./json/videos/"+ drop_down_region_code.get() + "_" + search_box_palabra_clave.get() + "_Videos.json", "w") as outfile:
         json.dump(search_response, outfile)
     createWordsCloud()
+    ventana.config(cursor="arrow")
 
 
 def on_close():
@@ -107,10 +102,6 @@ w.place(x=240, y=15, width=60)
 
 boton_convertir = ttk.Button(text="Buscar comentarios", command=createjson_Videos)
 boton_convertir.place(x=20, y=60)
-etiqueta_temp_kelvin = ttk.Label(text="Temperatura en K: n/a")
-etiqueta_temp_kelvin.place(x=20, y=120)
-etiqueta_temp_fahrenheit = ttk.Label(text="Temperatura en ºF: n/a")
-etiqueta_temp_fahrenheit.place(x=20, y=160)
 
 ventana.protocol("WM_DELETE_WINDOW", on_close)
 
