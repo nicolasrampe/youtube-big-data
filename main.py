@@ -15,8 +15,7 @@ import pathlib
 # API information
 api_service_name = "youtube"
 api_version = "v3"
-#DEVELOPER_KEY = 'AIzaSyBYwVqhlTzox2YdwHMk9ZKRQJkNkj2F2N0'  # Generada en Google Cloud Platform
-DEVELOPER_KEY = 'AIzaSyBrilxyR-EhvbWWOtZuj2JL0Hj7CrFWoRM'  # Generada en Google Cloud Platform
+DEVELOPER_KEY = [ACA_SU_API_KEY]  # Generada en Google Cloud Platform
 # API client
 youtube = youtube.build(
     api_service_name, api_version, developerKey=DEVELOPER_KEY)  # Construir objeto tipo googleapiclient.discovery
@@ -77,15 +76,15 @@ def on_close():
 
 ventana = tk.Tk()
 ventana.title("Buscador de comentarios")
-ventana.config(width=400, height=300)
+ventana.config(width=600, height=300)
 
 etiqueta_palabra_clave = ttk.Label(text="Palabra clave:")
 etiqueta_palabra_clave.place(x=20, y=20)
 search_box_palabra_clave = ttk.Entry()
-search_box_palabra_clave.place(x=110, y=20, width=60)
+search_box_palabra_clave.place(x=110, y=20, width=160)
 
 etiqueta_pais = ttk.Label(text="País:")
-etiqueta_pais.place(x=200, y=20)
+etiqueta_pais.place(x=300, y=20)
 
 OPTIONS = [
 "CO",
@@ -98,7 +97,7 @@ drop_down_region_code = StringVar(ventana)
 drop_down_region_code.set(OPTIONS[0]) # default value
 
 w = OptionMenu(ventana, drop_down_region_code, *OPTIONS)
-w.place(x=240, y=15, width=60)
+w.place(x=330, y=15, width=60)
 
 boton_convertir = ttk.Button(text="Buscar comentarios", command=createjson_Videos)
 boton_convertir.place(x=20, y=60)
